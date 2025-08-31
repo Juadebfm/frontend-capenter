@@ -1,10 +1,15 @@
 import React from "react";
 import { useProducts } from "../contexts/ProductContext";
+import ProductGrid from "../components/ProductGrid";
+import Hero from "../components/Hero";
 
 const HomePage = () => {
-  const { products } = useProducts();
-  console.log(products);
-  return <div className="min-h-screen bg-red-500">HomePage</div>;
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <Hero />
+      <ProductGrid />
+    </div>
+  );
 };
 
 export default HomePage;

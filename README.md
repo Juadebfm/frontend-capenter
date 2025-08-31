@@ -15,3 +15,23 @@ function getCategories() {
   return uniqueCategories;
 }
 ```
+
+```jsx
+{
+  showPrice === product.sku ? (
+    <div className="mt-2 bg-gray-100 rounded text-sm">
+      <div className="flex items-center space-x-2">
+        {/* Current price */}
+        <span className="font-bold text-gray-900">${product.price}</span>
+
+        {/* Show original price only if it’s higher (means discount) */}
+        {product.originalPrice > product.price ? (
+          <span className="line-through text-gray-500">
+            ${product.originalPrice}
+          </span>
+        ) : null}
+      </div>
+    </div>
+  ) : null;
+}
+```

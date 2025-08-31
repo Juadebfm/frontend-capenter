@@ -7,3 +7,20 @@
 body {
   font-family: "Poppins", sans-serif;
 }
+
+.swiper-pagination {
+  bottom: 100px !important;
+  left: 150px !important;
+  right: auto;
+  text-align: left !important;
+}
+
+.swiper-pagination-bullet {
+  width: 15px !important;
+  height: 15px !important;
+  background-color: #7eb80078 !important;
+}
+
+.swiper-pagination-bullet-active {
+  background-color: #7eb800 !important;
+}
