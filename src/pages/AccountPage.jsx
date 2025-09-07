@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../contexts/AuthContext";
 
 export default function AccountPage() {
   const { register, isLoading, error } = useAuth();
@@ -33,7 +33,7 @@ export default function AccountPage() {
       const res = await register(fullName, email.trim(), password);
       setSuccessMsg(res?.message || "Account created!");
       console.log("Newsletter opted in?", newsletter); // send to backend if needed
-      //  navigate('/home') 
+      //  navigate('/home')
     } catch {
       // error already set in context
     }

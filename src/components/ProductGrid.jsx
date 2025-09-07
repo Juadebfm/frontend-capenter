@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useProducts } from "../context/ProductContext";
+import { useProducts } from "../contexts/ProductContext";
 
 const ProductGrid = () => {
   const { products, loading, error } = useProducts();
@@ -15,7 +15,7 @@ const ProductGrid = () => {
     return <div className="text-red-500 text-center">Error: {error}</div>;
 
   // Only show first 7 products
-  const displayProducts = products.slice(0, 7);
+  const displayProducts = products.data.slice(0, 7);
 
   const PlusIcon = () => (
     <svg
