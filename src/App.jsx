@@ -7,6 +7,7 @@ import Footer from "./components/Footer";
 import { ProductsProvider } from "./contexts/ProductContext";
 import { AuthProvider } from "./contexts/AuthContext";
 import AccountPage from "./pages/AccountPage";
+import ProductDetailsPage from "./pages/ProductDetailsPage";
 
 const App = () => {
   return (
@@ -19,6 +20,7 @@ const App = () => {
               <Route path="/" element={<HomePage />} />
               <Route path="/catalogue" element={<CataloguePage />} />
               <Route path="/account" element={<AccountPage />} />
+              <Route path="/products/:id" element={<ProductDetailsPage />} />
             </Routes>
             <Footer />
           </Router>

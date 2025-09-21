@@ -133,18 +133,7 @@ export const mockProducts = [
     category: "Lighting",
     collections: "Industrial Core",
     sku: "LGT-IND-BLK-005",
-    images: [
-      {
-        url: "https://images.unsplash.com/photo-1505691723518-36a5ac3b2cb5?w=500",
-        alt: "Industrial black floor lamp",
-        _id: "68a61851be0c2768999584d4",
-      },
-      {
-        url: "https://images.unsplash.com/photo-1524758631624-e2822e304c36?w=500",
-        alt: "Lamp in modern living room",
-        _id: "68a61851be0c2768999584d5",
-      },
-    ],
+    images: [],
     inStock: true,
     stockQuantity: 55,
     ratings: { average: 4.2, count: 167 },

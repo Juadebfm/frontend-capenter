@@ -4,9 +4,9 @@ import { useProducts } from "../contexts/ProductContext";
 import { PlusIcon } from "lucide-react";
 
 const ProductGrid = () => {
-  // Context funcs
+  // Context values
   const { products, loading, error } = useProducts();
-  const items = Array.isArray(products) ? products : products?.data ?? [];
+  const items = Array.isArray(products) ? products : products?.data ?? []; 
 
   console.log(products.length);
   const [showPrice, setShowPrice] = useState(null);

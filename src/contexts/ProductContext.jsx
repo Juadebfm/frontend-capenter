@@ -57,6 +57,11 @@ export const ProductsProvider = ({ children }) => {
     );
   };
 
+  // Product by ID
+  const getProductById = (id) => {
+    return products.find((product) => product._id === id || product.sku === id);
+  };
+
   const searchProducts = (searchTerm) => {
     return products.filter(
       (product) =>
@@ -88,6 +93,7 @@ export const ProductsProvider = ({ children }) => {
     getProductsByCategory,
     getCategories,
     searchProducts,
+    getProductById,
     refetch,
   };
 
