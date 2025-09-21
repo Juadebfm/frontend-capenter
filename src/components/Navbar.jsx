@@ -46,8 +46,8 @@ const Navbar = () => {
   }, [isHome]);
 
   const linkClass = (to) =>
-    `block py-2 hover:text-smGreen hover:underline underline-offset-4 transition-colors ${
-      location.pathname === to ? "text-smGreen underline" : ""
+    `block py-2 hover:text-swGreen hover:underline underline-offset-4 transition-colors ${
+      location.pathname === to ? "text-swGreen underline" : ""
     }`;
 
   const mobileBar =
@@ -58,7 +58,7 @@ const Navbar = () => {
       : "bg-transparent text-white";
 
   const desktopBar = !isHome
-    ? "bg-smBlack text-white static"
+    ? "bg-swBlack text-white static"
     : solid
     ? "bg-white text-gray-900 border-b fixed top-0 left-0 right-0 z-40"
     : "bg-transparent text-white absolute z-40 w-full";

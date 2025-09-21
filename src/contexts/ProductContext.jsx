@@ -23,18 +23,21 @@ export const ProductsProvider = ({ children }) => {
       setLoading(true);
       setError(null); // Any error before now, it is clear
 
-      const response = await fetch(
-        "https://e-commerce-backend-beta-lemon.vercel.app/api/products/"
-      );
+      // const response = await fetch(
+      //   "https://e-commerce-backend-beta-lemon.vercel.app/api/products/"
+      // );
 
-      if (!response.ok) {
-        throw new Error(`Error: ${response.status}`);
-      }
+      const { mockProducts } = await import("../data/carpenter.data.js");
 
-      const data = await response.json();
+      // if (!response.ok) {
+      //   throw new Error(`Error: ${response.status}`);
+      // }
+
+      // const data = await response.json();
 
       // adjust to how our api data looks.
-      setProducts(data.products || data);
+      setProducts(mockProducts);
+      console.log(mockProducts);
     } catch (error) {
       setError(error.message);
       console.error("Failed to load products:", error);
