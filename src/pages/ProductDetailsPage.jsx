@@ -125,6 +125,19 @@ const ProductDetailsPage = () => {
     return Array.from({ length: 5 }, (_, i) => (i < avg ? "★" : "☆")).join("");
   }, [product?.ratings?.average]);
 
+  const related = useMemo(() => {
+    if (!product) return []; // If there's no product, return an empty list
+
+    return products
+      .filter(
+        (p) =>
+          p.sku !== product.sku && // Don't include the same product
+          (p.category === product.category ||
+            p.collections === product.collections)
+      )
+      .slice(0, 4); // Only take the first 4 matching products
+  }, [products, product]); // Recalculate only when products or product changes
+
   // Notification messages
   if (loading) {
     return (
@@ -299,6 +312,63 @@ const ProductDetailsPage = () => {
       </div>
 
       {/* Accordions */}
+      <Accordion product={product} />
+
+      {/* Related Products */}
+      {related.length > 0 && (
+        <div className="mt-[58px]">
+          <h2 className="text-center text-2xl font-light mb-6">
+            Related Products
+          </h2>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-[30px] px-[170px]">
+            {related.map((p) => (
+              <Link
+                key={p.sku}
+                to={`/products/${p.sku}`}
+                onClick={(e) => {
+                  e.preventDefault();
+                  window.history.pushState({}, "", `/products/${p.sku}`);
+                  window.dispatchEvent(new PopStateEvent("popstate"));
+                  window.scrollTo({ top: 0, behavior: "smooth" });
+                }}
+              >
+                <div className="bg-swBlack/50 rounded-lg overflow-hidden">
+                  <img
+                    src={p.images?.[0]?.url}
+                    alt={p.images?.[0]?.alt || p.name}
+                    className="w-full h-40 object-cover"
+                  />
+                </div>
+                <div className="mt-4 text-sm">
+                  <p>{p.name}</p>
+                </div>
+
+                <div className="mt-2 flex items-center gap-2">
+                  {p.originalPrice > p.price && (
+                    <span className="text-gray-400 line-through">
+                      ${p.originalPrice}
+                    </span>
+                  )}
+                  <span>${p.price}</span>
+                </div>
+
+                <div className="mt-2 flex items-center gap-3 text-sm">
+                  <span className="text-yellow-500" aria-hidden>
+                    {stars}
+                  </span>
+                  <span className="text-gray-700">
+                    {p.ratings?.average?.toFixed?.(1) || "0.0"}
+                  </span>
+                  <span className="text-gray-500">
+                    ({p.ratings?.count || 0})
+                  </span>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 };
@@ -307,13 +377,13 @@ export default ProductDetailsPage;
 
 const Accordion = ({ product }) => {
   const sections = [
-    { title: "Details", content: product.description },
+    { title: "Details", content: product.description }, //0
     {
       title: "Sizes",
       content: product.dimensions
         ? `${product.dimensions.height} x ${product.dimensions.width} x ${product.dimensions.depth} x ${product.dimensions.unit}`
         : "",
-    },
+    }, // 1
     { title: "Care Instructions", content: product.careInstructions || "--" },
     {
       title: "Quality and environmental information",
@@ -334,6 +404,27 @@ const Accordion = ({ product }) => {
     },
   ];
 
+  // States need for the accordion drop down actions
   const [open, setOpen] = useState(0);
-  return <div></div>;
+
+  return (
+    <div className="mt-10 px-[170px] divide-y">
+      {sections.map((section, i) => (
+        <div key={i}>
+          <button
+            onClick={() => setOpen(open === i ? -1 : i)}
+            className="w-full flex items-center justify-start py-4 text-left gap-[21px]"
+          >
+            <span className="text-swBlack text-2xl">
+              {open === i ? "-" : "+"}
+            </span>
+            <span className="text-swBlack font-bold">{section.title}</span>
+          </button>
+          {open === i && (
+            <div className="pb-4 pl-[47px] font-light">{section.content}</div>
+          )}
+        </div>
+      ))}
+    </div>
+  );
 };
