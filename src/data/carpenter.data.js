@@ -175,7 +175,7 @@ export const mockProducts = [
         _id: "68a61851be0c2768999584d7",
       },
     ],
-    inStock: true,
+    inStock: false,
     stockQuantity: 22,
     ratings: { average: 4.5, count: 94 },
     features: [
@@ -1123,3 +1123,50 @@ export const mockProducts = [
     },
   },
 ];
+
+export const dbProducts = {
+  data: [
+    {
+      name: "Mid-Century Walnut Dining Table",
+      description:
+        "A sturdy walnut dining table with rounded corners and tapered legs.",
+      price: 279.99,
+      originalPrice: 349.99,
+      category: "Tables",
+      collections: "Heritage Classics",
+      sku: "TBL-MID-WAL-002",
+      images: [
+        {
+          url: "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=500",
+          alt: "Mid-Century Walnut Dining Table",
+          _id: "68a61851be0c2768999584ce",
+        },
+        {
+          url: "https://images.unsplash.com/photo-1503602642458-232111445657?w=500",
+          alt: "Walnut Dining Table Set with Chairs",
+          _id: "68a61851be0c2768999584cf",
+        },
+      ],
+      inStock: true,
+      stockQuantity: 12,
+      ratings: { average: 4.6, count: 88 },
+      features: [
+        "Solid walnut veneer",
+        "Tapered legs",
+        "Seats up to six",
+        "Easy-clean finish",
+      ],
+      dimensions: { height: 30, width: 72, depth: 36, unit: "inches" },
+      weight: { value: 95, unit: "lbs" },
+      materials: ["Walnut veneer", "Solid rubberwood", "Low-VOC lacquer"],
+      careInstructions:
+        "Wipe with a damp cloth and dry immediately. Use coasters and placemats to protect the surface.",
+      inActive: false,
+      createdBy: {
+        _id: "68971c240d5c4f8e52c33302",
+        name: "juadebgabrielsunday",
+        email: "juadebgabrielsunday@gmail.com",
+      },
+    },
+  ],
+};

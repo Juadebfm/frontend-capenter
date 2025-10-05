@@ -1,52 +1,49 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { useProducts } from "../contexts/ProductContext";
-import { PlusIcon } from "lucide-react";
 
 const ProductGrid = () => {
-  // Context values
   const { products, loading, error } = useProducts();
-  const items = Array.isArray(products) ? products : products?.data ?? []; 
-
-  console.log(products.length);
   const [showPrice, setShowPrice] = useState(null);
-  // How many products to see on the page load = 10
   const INITIAL_COUNT = 10;
-  // When the see more button is clicked
   const STEP = 10;
-  // How many products to show after see more button
   const [visibleCount, setVisibleCount] = useState(INITIAL_COUNT);
 
-  // Loading UI
   if (loading)
     return (
-      <div className="flex justify-center items-center h-64 bg-slate-200">
+      <div className="flex justify-center items-center h-64">
         Loading products...
       </div>
     );
-
-  // Error UI
   if (error)
-    return (
-      <div className="text-red-500 text-center h-64 px-20 flex justify-center items-center font-bold text-xl capitalize">
-        Error Occured Try Again Later
-      </div>
-    );
+    return <div className="text-red-500 text-center">Error: {error}</div>;
 
-  // To create the first set of products to see i.e 10 products
-  const displayedProducts = items.slice(0, visibleCount);
+  const displayProducts = products.slice(0, visibleCount);
 
-  // func for plus click
+  const PlusIcon = () => (
+    <svg
+      className="w-4 h-4"
+      fill="none"
+      stroke="currentColor"
+      viewBox="0 0 24 24"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={2}
+        d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+      />
+    </svg>
+  );
+
   const handlePlusClick = (productSku) => {
     setShowPrice(showPrice === productSku ? null : productSku);
   };
 
-  const canSeeMore = visibleCount < items.length;
-
-  // button: see more
+  const canSeeMore = visibleCount < products.length;
   const handleSeeMore = () => {
     if (canSeeMore) {
-      setVisibleCount((c) => Math.min(c + STEP, items.length));
+      setVisibleCount((c) => Math.min(c + STEP, products.length));
     } else {
       setVisibleCount(INITIAL_COUNT);
       window.scrollTo({ top: 0, behavior: "smooth" });
@@ -56,30 +53,31 @@ const ProductGrid = () => {
   return (
     <div className="min-h-screen bg-gray-50 p-4 sm:p-6 md:p-8">
       <div className="max-w-6xl mx-auto w-full">
-        {/* Product grid actual */}
         <div className="columns-1 sm:columns-2 lg:columns-3 gap-4 sm:gap-6 space-y-4 sm:space-y-6">
-          {displayedProducts.map((product, index) => (
+          {displayProducts.map((product, index) => (
             <div key={product.sku} className="break-inside-avoid mb-4 sm:mb-6">
-              {/* Product Image */}
+              {/* Product Image Card */}
               <Link to={`/products/${product.sku}`} className="block">
-                <img
-                  src={product.images[0]?.url}
-                  alt={product.images[0]?.alt || product.name}
-                  className="w-full h-auto object-cover"
-                  loading="lazy"
-                />
+                <div className="bg-white rounded-lg overflow-hidden shadow-sm">
+                  <img
+                    src={product.images[0]?.url}
+                    alt={product.images[0]?.alt || product.name}
+                    className="w-full h-auto object-cover"
+                    loading="lazy"
+                  />
+                </div>
               </Link>
 
-              {/* Product info card */}
+              {/* Product Info Below Card */}
               <div className="mt-3 flex items-center justify-start gap-3">
-                {/* Plus icon */}
+                {/* Plus Icon Button */}
                 <button
                   onClick={() => handlePlusClick(product.sku)}
                   className="flex-shrink-0 w-6 h-6 bg-[#7DB800] hover:bg-[#7DB800]/80 text-white rounded-full flex items-center justify-center transition-colors duration-200"
                 >
                   <PlusIcon />
                 </button>
-                <h3 className="text-sm font-light text-swBlack flex-1 mr-2">
+                <h3 className="text-sm font-light text-[#212121] flex-1 mr-2">
                   <Link
                     to={`/products/${product.sku}`}
                     className="hover:underline"
@@ -89,11 +87,11 @@ const ProductGrid = () => {
                 </h3>
               </div>
 
-              {/* Price Display (shows when the plus icon is clicked) */}
+              {/* Price Display (shows when plus is clicked) */}
               {showPrice === product.sku && (
                 <div className="mt-2 p-2 bg-gray-100 rounded text-sm">
                   <div className="flex items-center space-x-2">
-                    <span className="font-bold text-swBlack">
+                    <span className="font-bold text-gray-900">
                       ${product.price}
                     </span>
                     {product.originalPrice > product.price && (
@@ -107,15 +105,16 @@ const ProductGrid = () => {
             </div>
           ))}
         </div>
-        {/* // See more  */}
+
+        {/* See More Button */}
         <div className="text-center mt-8">
-          {items.length > INITIAL_COUNT && (
+          {products.length > INITIAL_COUNT && (
             <button
-              aria-label={
-                canSeeMore ? "See More Products" : "Collapse Products"
-              }
               onClick={handleSeeMore}
-              className="bg-[#7DB800] hover:bg-[#7DB800]/80 text-white px-8 py-3 rounded font-semibold transition-all duration-300 flex items-center gap-2 drop-shadow-lg"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-green-500 hover:bg-green-600 text-white px-6 sm:px-8 py-3 rounded font-semibold transition-colors duration-300"
+              aria-label={
+                canSeeMore ? "See more products" : "Collapse products"
+              }
             >
               {canSeeMore ? "See More" : "See Less"}
             </button>
