@@ -9,6 +9,7 @@ import { AuthProvider } from "./contexts/AuthContext";
 import AccountPage from "./pages/AccountPage";
 import ProductDetailsPage from "./pages/ProductDetailsPage";
 import { CartProvider } from "./contexts/CartContext";
+import { Toastprovider } from "./contexts/ToastContext";
 
 const App = () => {
   return (
@@ -16,16 +17,21 @@ const App = () => {
       <AuthProvider>
         <ProductsProvider>
           <CartProvider>
-            <Router>
-              <Navbar />
-              <Routes>
-                <Route path="/" element={<HomePage />} />
-                <Route path="/catalogue" element={<CataloguePage />} />
-                <Route path="/account" element={<AccountPage />} />
-                <Route path="/products/:sku" element={<ProductDetailsPage />} />
-              </Routes>
-              <Footer />
-            </Router>
+            <Toastprovider>
+              <Router>
+                <Navbar />
+                <Routes>
+                  <Route path="/" element={<HomePage />} />
+                  <Route path="/catalogue" element={<CataloguePage />} />
+                  <Route path="/account" element={<AccountPage />} />
+                  <Route
+                    path="/products/:sku"
+                    element={<ProductDetailsPage />}
+                  />
+                </Routes>
+                <Footer />
+              </Router>
+            </Toastprovider>
           </CartProvider>
         </ProductsProvider>
       </AuthProvider>

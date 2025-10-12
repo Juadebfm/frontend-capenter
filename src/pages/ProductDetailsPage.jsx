@@ -1,7 +1,17 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { useParams, Link, useLocation } from "react-router-dom";
+import { useParams, Link, useLocation, useNavigate } from "react-router-dom";
 import { useProducts } from "../contexts/ProductContext";
-import { ChevronLeft, ChevronRight, CheckCircle2 } from "lucide-react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  CheckCircle2,
+  Minus,
+  Plus,
+  Heart,
+} from "lucide-react";
+import { useCart } from "../contexts/CartContext";
+import { useToast } from "../contexts/ToastContext";
+import { MdEmail } from "react-icons/md";
 
 // Local Fallbacks
 const HARD_FALLBACK_BY_CATEGORY = {
@@ -118,6 +128,55 @@ const ProductDetailsPage = () => {
   // Ensure local fallbacks never fails
   const hardFallback =
     HARD_FALLBACK_BY_CATEGORY[product?.category] || DEFAULT_HARD_FALLBACK;
+
+  // Quantity State
+  const { items, addItem, updateQty, removeItem } = useCart();
+  const { show } = useToast ? useToast() : { show: () => {} };
+  const [qty, setQty] = useState(1);
+
+  // Keep local quantity in sync with the cart when the product items list changes.
+  useEffect(() => {
+    if (!product) return;
+
+    const existing = items.find((i) => i.sku === product.sku);
+
+    if (existing) setQty(existing.qty);
+  }, [product?.sku, items]);
+
+  // Increment and decrement
+  const inc = () => {
+    const existing = items.find((i) => i.sku === product.sku);
+
+    if (existing) {
+      const next = existing.qty + 1;
+      updateQty(product.sku, next);
+      setQty(next);
+      show && show(`${product.name} quantity updated: ${next}`);
+    } else {
+      // Auto add on first increment
+      addItem(product, 1);
+      setQty(1);
+      show && show(`${product.name} added to cart`);
+    }
+  };
+
+  const dec = () => {
+    const existing = items.find((i) => i.sku === product.sku);
+    if (existing) {
+      const next = existing.qty - 1;
+      if (next <= 0) {
+        removeItem(product.sku);
+        setQty(1);
+        show && show(`${product.name} removed from cart`);
+      } else {
+        updateQty(product.sku, next);
+        setQty(next);
+        show && show(`${product.name} quantity updated: ${next}`);
+      }
+    } else {
+      setQty((q) => Math.max(1, q - 1));
+    }
+  };
 
   // Fix rating stars
   const stars = useMemo(() => {
@@ -307,7 +366,36 @@ const ProductDetailsPage = () => {
           </div>
 
           {/* Quantity & Add to cart */}
-          <div></div>
+          <div className="mt-6">
+            <label className="block text-sm text-swBlack mb-3">Quantity</label>
+            <div className="flex items-center gap-4">
+              <div className="inline-flex items-center border rounded">
+                <button onClick={dec} className="p-2 hover:bg-gray-50">
+                  <Minus className="w-4 h-4" />
+                </button>
+                <span className="px-4 py-8 min-w-[2rem] text-center select-none">
+                  {qty}
+                </span>
+                <button onClick={inc} className="p-2 hover:bg-gray-50">
+                  <Plus className="w-4 h-4" />
+                </button>
+              </div>
+
+              <AddToCartButton product={product} qty={qty} />
+            </div>
+          </div>
+
+          <div className="mt-6 flex flex-wrap items-center gap-6 text-sm text-gray-600">
+            <button className="inline-flex items-center gap-2 hover:text-swBlack">
+              <Heart className="w-4 h-4" /> Add To waitlist
+            </button>
+            <button className="inline-flex items-center gap-2 hover:text-swBlack">
+              Add to compare
+            </button>
+            <button className="inline-flex items-center gap-2 hover:text-swBlack">
+              <MdEmail className="w-4 h-4" /> Email
+            </button>
+          </div>
         </div>
       </div>
 
@@ -426,5 +514,25 @@ const Accordion = ({ product }) => {
         </div>
       ))}
     </div>
+  );
+};
+
+// Reusable Add to cart button
+const AddToCartButton = ({ product, qty }) => {
+  const { addItem } = useCart();
+  const navigate = useNavigate();
+
+  const handle = () => {
+    addItem(product, qty);
+    navigate("/cart");
+  };
+
+  return (
+    <button
+      onClick={handle}
+      className="inline-flex items-center justify-center bg-green-500 hover:bg-green-600 px-6 py-3 rounded font-semibold transition-colors"
+    >
+      Add To Cart
+    </button>
   );
 };

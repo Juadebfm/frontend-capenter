@@ -4,10 +4,13 @@ import {
   LucideSearch,
   LucideUser,
   Menu,
+  ShoppingBag,
+  ShoppingBasket,
   X,
 } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
+import { useCart } from "../contexts/CartContext";
 
 const LINKS = [
   { to: "/", label: "Home" },
@@ -65,6 +68,18 @@ const Navbar = () => {
 
   const logoShadowClass = isHome && solid ? "drop-shadow-md" : "";
 
+  // to create the addintion
+  const { itemCount } = useCart();
+  const [bump, setBump] = useState(false);
+
+  useEffect(() => {
+    if (itemCount > 0) {
+      setBump(true);
+      const t = setTimeout(() => setBump(false), 600);
+      return () => clearTimeout(t);
+    }
+  }, [itemCount]);
+
   return (
     <>
       <nav
@@ -96,9 +111,9 @@ const Navbar = () => {
 
             <Link to="/cart" className="relative inline-flex" aria-label="Cart">
               <span className="w-5 h-5 bg-smGreen text-white rounded-full flex items-center justify-center text-[10px] absolute -right-2 -top-2">
-                2
+                {itemCount}
               </span>
-              <img src="/cart.svg" alt="Cart" className="h-6 w-6" />
+              <ShoppingBag className="h-8 w-8" />
             </Link>
           </div>
         </div>
@@ -197,9 +212,9 @@ const Navbar = () => {
 
             <div className="relative">
               <span className="w-3 h-3 bg-smGreen text-white rounded-full flex items-center justify-center text-xs absolute -right-1 -top-1">
-                2
+                {itemCount}
               </span>
-              <img src="/cart.svg" alt="Cart" className="h-4 w-4" />
+              <ShoppingBasket className="w-6 h-6" />
             </div>
           </div>
         </section>

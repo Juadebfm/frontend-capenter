@@ -58,8 +58,30 @@ export const CartProvider = ({ children }) => {
     });
   }; // STORAGE_KEY: ["marble chair", "marble chair", "another product"]
 
+  const removeItem = (sku) => {
+    setItems((prev) => prev.filter((p) => p.sku !== sku));
+  };
+
+  const updateQty = (sku, qty) => {
+    setItems((prev) =>
+      prev.map((p) => (p.sku === sku ? { ...p, qty: Math.max(1, qty) } : p))
+    );
+  };
+
+  const clearCart = () => setItems([]);
+
+  const getSubTotal = () => items.reduce((s, i) => s + i.price * i.qty, 0);
+
+  const itemCount = items.reduce((s, i) => s + i.qty, 0);
+
   const value = {
+    items,
     addItem,
+    removeItem,
+    updateQty,
+    clearCart,
+    getSubTotal,
+    itemCount,
   };
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
