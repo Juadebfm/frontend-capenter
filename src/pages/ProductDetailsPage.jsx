@@ -8,6 +8,7 @@ import {
   Minus,
   Plus,
   Heart,
+  Mail,
 } from "lucide-react";
 import { useCart } from "../contexts/CartContext";
 import { useToast } from "../contexts/ToastContext";
@@ -232,86 +233,69 @@ const ProductDetailsPage = () => {
 
   return (
     <div className="bg-white">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 md:px-10  py-6 md:py-10">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 md:px-10 lg:px-[150px] py-6 md:py-10">
         {/* Breadcrumbs */}
-        <div className="text-sm text-swBlack mb-10">
-          <Link to="/" className="text-gray-400 hover:text-swBlack">
+        <nav className="text-sm text-gray-500 mb-4">
+          <Link to="/" className="hover:text-gray-700">
             Home
           </Link>
           <span className="mx-2">/</span>
           {product.collections ? (
-            <span className="text-gray-400 hover:text-swBlack cursor-default">
-              {product.collections}
-            </span>
+            <>
+              <span>{product.collections}</span>
+              <span className="mx-2">/</span>
+            </>
           ) : null}
-        </div>
+          <span className="text-gray-700">{product.name}</span>
+        </nav>
 
-        {/* Content */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
-          {/* Image Gallery */}
+          {/* Image gallery with thumbnails and nav */}
           <div>
-            <div className="bg-gray-100 rounded-lg overflow-hidden shadow-sm relative">
+            <div className="bg-gray-50 rounded-lg overflow-hidden shadow-sm relative">
               <img
-                src={current?.url || hardFallback}
-                alt={current?.alt || product.name}
+                src={current.url}
+                alt={current.alt || product.name}
                 className="w-full h-auto object-contain aspect-square"
-                referrerPolicy="no-referrer"
-                onError={(e) => {
-                  if (e.currentTarget.src !== hardFallback) {
-                    e.currentTarget.src = hardFallback; // final local image
-                  }
-                }}
               />
-
               {images.length > 1 && (
                 <>
                   <button
-                    className="absolute left-3 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white text-swBlack w-10 h-10 rounded-full shadow flex items-center justify-center"
-                    onClick={prev}
+                    className="absolute left-3 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white text-gray-700 w-10 h-10 rounded-full shadow flex items-center justify-center"
+                    onClick={() =>
+                      setIndex((i) => (i - 1 + images.length) % images.length)
+                    }
                     aria-label="Previous image"
-                    type="button"
                   >
                     <ChevronLeft className="w-5 h-5" />
                   </button>
-
                   <button
-                    className="absolute right-3 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white text-swBlack w-10 h-10 rounded-full shadow flex items-center justify-center"
-                    onClick={next}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white text-gray-700 w-10 h-10 rounded-full shadow flex items-center justify-center"
+                    onClick={() => setIndex((i) => (i + 1) % images.length)}
                     aria-label="Next image"
-                    type="button"
                   >
                     <ChevronRight className="w-5 h-5" />
                   </button>
                 </>
               )}
             </div>
-
-            {/* Thumbnails */}
             {images.length > 1 && (
               <div className="mt-4 grid grid-cols-4 gap-2">
                 {images.map((img, idx) => (
                   <button
-                    key={img.url || idx}
+                    key={idx}
                     onClick={() => setIndex(idx)}
-                    type="button"
                     className={`border rounded overflow-hidden focus:outline-none ${
                       idx === index
-                        ? "ring-2 ring-black"
-                        : "hover:ring-1 hover:ring-gray-700"
+                        ? "ring-2 ring-green-500"
+                        : "hover:ring-1 hover:ring-gray-300"
                     }`}
-                    aria-label={`Image ${idx + 1} for ${product.name}`}
+                    aria-label={`View image ${idx + 1}`}
                   >
                     <img
-                      src={img.url || hardFallback}
+                      src={img.url}
                       alt={img.alt || product.name}
                       className="w-full h-20 object-cover"
-                      loading="lazy"
-                      referrerPolicy="no-referrer"
-                      onError={(e) => {
-                        if (e.currentTarget.src !== hardFallback) {
-                          e.currentTarget.src = hardFallback; // final local image
-                        }
-                      }}
                     />
                   </button>
                 ))}
@@ -320,143 +304,135 @@ const ProductDetailsPage = () => {
           </div>
 
           {/* Details */}
-          <div className="">
-            <h1 className="text-2xl md:text-3xl font-semibold text-swBlack">
+          <div>
+            <h1 className="text-2xl md:text-3xl font-semibold text-gray-900">
               {product.name}
             </h1>
 
-            <div className="mt-2 flex items-center gap-3 text-sm">
+            <div className="mt-2 flex items-center gap-3 text-sm text-gray-600">
               <span className="text-yellow-500" aria-hidden>
-                {stars}
+                {" "}
+                {stars}{" "}
               </span>
-              <span className="text-gray-700">
-                {product.ratings?.average?.toFixed?.(1) || "0.0"}
-              </span>
-              <span className="text-gray-500">
-                ({product.ratings?.count || 0})
+              <span>{product.rating?.average?.toFixed?.(1) || "0.0"}</span>
+              <span className="text-gray-400">·</span>
+              <span>{product.rating?.count || 0} reviews</span>
+              <span className="ml-auto inline-flex items-center gap-1 text-green-600">
+                <CheckCircle2 className="w-4 h-4" /> In stock
               </span>
             </div>
-            <div className="mt-8 flex items-center justify-between border-b border-[#E0E0E0] pb-[25px]">
-              <div>
-                <p className="uppercase text-[#828282] tracking-wider">
-                  as low as
-                </p>
-                <span className="text-3xl font-semibold text-swBlack">
+
+            <div className="mt-4 flex items-end justify-between">
+              <div className="flex items-end gap-3">
+                <span className="text-3xl font-semibold text-gray-900">
                   ${product.price}
                 </span>
+                {product.originalPrice > product.price && (
+                  <span className="text-gray-400 line-through">
+                    ${product.originalPrice}
+                  </span>
+                )}
               </div>
-              <div>
-                <span className="ml-auto inline-flex items-center gap-1">
-                  {product.inStock ? (
-                    <>
-                      <CheckCircle2 className="w-4 h-4 text-green-600" />
-                      <span className="text-green-700">In stock</span>
-                    </>
-                  ) : (
-                    <>
-                      <CheckCircle2 className="w-4 h-4 text-red-600" />
-                      <span className="text-red-700">Out of stock</span>
-                    </>
-                  )}
-                </span>
+              <p className="text-sm text-gray-500">SKU: {product.sku}</p>
+            </div>
 
-                <p className="font-light">#SKU: {product.sku}</p>
+            {/* Quantity + Add to cart */}
+            <div className="mt-6">
+              <label className="block text-sm text-gray-700 mb-2">
+                Quantity
+              </label>
+              <div className="flex items-center gap-3">
+                <div className="inline-flex items-center border rounded">
+                  <button
+                    onClick={dec}
+                    className="p-2 hover:bg-gray-50"
+                    aria-label="Decrease quantity"
+                  >
+                    <Minus className="w-4 h-4" />
+                  </button>
+                  <span className="px-4 py-2 min-w-[2rem] text-center select-none">
+                    {qty}
+                  </span>
+                  <button
+                    onClick={inc}
+                    className="p-2 hover:bg-gray-50"
+                    aria-label="Increase quantity"
+                  >
+                    <Plus className="w-4 h-4" />
+                  </button>
+                </div>
+                <AddToCartButton product={product} qty={qty} />
               </div>
             </div>
-          </div>
 
-          {/* Quantity & Add to cart */}
-          <div className="mt-6">
-            <label className="block text-sm text-swBlack mb-3">Quantity</label>
-            <div className="flex items-center gap-4">
-              <div className="inline-flex items-center border rounded">
-                <button onClick={dec} className="p-2 hover:bg-gray-50">
-                  <Minus className="w-4 h-4" />
-                </button>
-                <span className="px-4 py-8 min-w-[2rem] text-center select-none">
-                  {qty}
-                </span>
-                <button onClick={inc} className="p-2 hover:bg-gray-50">
-                  <Plus className="w-4 h-4" />
-                </button>
-              </div>
-
-              <AddToCartButton product={product} qty={qty} />
+            {/* Secondary actions */}
+            <div className="mt-6 flex flex-wrap items-center gap-6 text-sm text-gray-600">
+              <button className="inline-flex items-center gap-2 hover:text-gray-800">
+                <Heart className="w-4 h-4" /> Add to wishlist
+              </button>
+              <button className="inline-flex items-center gap-2 hover:text-gray-800">
+                Add to compare
+              </button>
+              <button className="inline-flex items-center gap-2 hover:text-gray-800">
+                <Mail className="w-4 h-4" /> Email
+              </button>
             </div>
-          </div>
-
-          <div className="mt-6 flex flex-wrap items-center gap-6 text-sm text-gray-600">
-            <button className="inline-flex items-center gap-2 hover:text-swBlack">
-              <Heart className="w-4 h-4" /> Add To waitlist
-            </button>
-            <button className="inline-flex items-center gap-2 hover:text-swBlack">
-              Add to compare
-            </button>
-            <button className="inline-flex items-center gap-2 hover:text-swBlack">
-              <MdEmail className="w-4 h-4" /> Email
-            </button>
           </div>
         </div>
+
+        {/* Accordions */}
+        <Accordion product={product} />
+
+        {/* Related products */}
+        {related.length > 0 && (
+          <section className="mt-14">
+            <h2 className="text-center text-xl font-medium mb-6">
+              Related Products
+            </h2>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+              {related.map((p) => (
+                <Link
+                  key={p.sku}
+                  to={`/products/${p.sku}`}
+                  className="group"
+                  onClick={(e) => {
+                    // defend against any outer handlers and ensure navigation + scroll
+                    e.preventDefault();
+                    // use programmatic navigation to ensure the route updates
+                    // (Link would normally handle this, but some layouts swallow clicks)
+                    window.history.pushState({}, "", `/products/${p.sku}`);
+                    // force react-router to navigate programmatically
+                    // NOTE: using location assign via the browser ensures URL change; react-router will pick it up
+                    window.dispatchEvent(new PopStateEvent("popstate"));
+                    window.scrollTo({ top: 0, behavior: "smooth" });
+                  }}
+                >
+                  <div className="bg-gray-50 rounded-lg overflow-hidden">
+                    <img
+                      src={p.images?.[0]?.url}
+                      alt={p.images?.[0]?.alt || p.name}
+                      className="w-full h-40 object-cover"
+                    />
+                  </div>
+                  <div className="mt-3 text-sm">
+                    <p className="text-gray-900 group-hover:underline line-clamp-2">
+                      {p.name}
+                    </p>
+                    <div className="mt-1 flex items-center gap-2">
+                      <span className="font-semibold">${p.price}</span>
+                      {p.originalPrice > p.price && (
+                        <span className="text-gray-400 line-through text-xs">
+                          ${p.originalPrice}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </section>
+        )}
       </div>
-
-      {/* Accordions */}
-      <Accordion product={product} />
-
-      {/* Related Products */}
-      {related.length > 0 && (
-        <div className="mt-[58px]">
-          <h2 className="text-center text-2xl font-light mb-6">
-            Related Products
-          </h2>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-[30px] px-[170px]">
-            {related.map((p) => (
-              <Link
-                key={p.sku}
-                to={`/products/${p.sku}`}
-                onClick={(e) => {
-                  e.preventDefault();
-                  window.history.pushState({}, "", `/products/${p.sku}`);
-                  window.dispatchEvent(new PopStateEvent("popstate"));
-                  window.scrollTo({ top: 0, behavior: "smooth" });
-                }}
-              >
-                <div className="bg-swBlack/50 rounded-lg overflow-hidden">
-                  <img
-                    src={p.images?.[0]?.url}
-                    alt={p.images?.[0]?.alt || p.name}
-                    className="w-full h-40 object-cover"
-                  />
-                </div>
-                <div className="mt-4 text-sm">
-                  <p>{p.name}</p>
-                </div>
-
-                <div className="mt-2 flex items-center gap-2">
-                  {p.originalPrice > p.price && (
-                    <span className="text-gray-400 line-through">
-                      ${p.originalPrice}
-                    </span>
-                  )}
-                  <span>${p.price}</span>
-                </div>
-
-                <div className="mt-2 flex items-center gap-3 text-sm">
-                  <span className="text-yellow-500" aria-hidden>
-                    {stars}
-                  </span>
-                  <span className="text-gray-700">
-                    {p.ratings?.average?.toFixed?.(1) || "0.0"}
-                  </span>
-                  <span className="text-gray-500">
-                    ({p.ratings?.count || 0})
-                  </span>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </div>
-      )}
     </div>
   );
 };
@@ -496,7 +472,7 @@ const Accordion = ({ product }) => {
   const [open, setOpen] = useState(0);
 
   return (
-    <div className="mt-10 px-[170px] divide-y">
+    <div className="mt-10 divide-y">
       {sections.map((section, i) => (
         <div key={i}>
           <button
