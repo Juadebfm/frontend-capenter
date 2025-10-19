@@ -10,6 +10,7 @@ import AccountPage from "./pages/AccountPage";
 import ProductDetailsPage from "./pages/ProductDetailsPage";
 import { CartProvider } from "./contexts/CartContext";
 import { Toastprovider } from "./contexts/ToastContext";
+import Cart from "./pages/Cart";
 
 const App = () => {
   return (
@@ -28,6 +29,7 @@ const App = () => {
                     path="/products/:sku"
                     element={<ProductDetailsPage />}
                   />
+                  <Route path="/cart" element={<Cart />} />
                 </Routes>
                 <Footer />
               </Router>

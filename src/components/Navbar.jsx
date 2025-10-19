@@ -23,7 +23,7 @@ const LINKS = [
 
 const Navbar = () => {
   const location = useLocation();
-  const isHome = location.pathname === "/";
+  const isHome = location.pathname === "/"; // home resolver
   const [open, setOpen] = useState(false);
   const [solid, setSolid] = useState(false);
 
@@ -211,7 +211,11 @@ const Navbar = () => {
             <LucideUser className="h-4 w-4 cursor-pointer" />
 
             <div className="relative">
-              <span className="w-3 h-3 bg-smGreen text-white rounded-full flex items-center justify-center text-xs absolute -right-1 -top-1">
+              <span
+                className={`w-4 h-4 bg-smGreen text-white p-2 bg-red-500 rounded-full flex items-center justify-center text-xs absolute -right-1 -top-1 ${
+                  bump ? "animate-bounce" : ""
+                }`}
+              >
                 {itemCount}
               </span>
               <ShoppingBasket className="w-6 h-6" />
