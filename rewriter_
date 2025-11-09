@@ -1,0 +1,82 @@
+// const fs = require("fs");
+// const path = require("path");
+// const file = path.join("src", "pages", "*.jsx");
+// const marker = " if(items.length===0&&!success){";
+// const text = fs.readFileSync(file, "utf8");
+
+
+
+
+// import React, { useEffect, useMemo, useState } from "react";
+// import { useCart } from "../contexts/CartContext";
+// import { useAuth } from "../contexts/AuthContext";
+
+// const CheckoutPage = () => {
+//   const { items, clearCart, getSubTotal } = useCart();
+//   const { user, isAuthenticated } = useAuth();
+
+//   const ordersStorageKey = "sw_orders_v1";
+//   //   load existing orders from storage first so we can bring back the order on this page
+
+//   const [orders, serOrders] = useState(() => {
+//     try {
+//       const raw = localStorage.getItem(ordersStorageKey);
+//       if (raw) return JSON.parse(raw);
+//     } catch (e) {
+//       //   ignore
+//     }
+
+//     return []; // not sure about it's efficacy
+//   });
+
+//   // if there is a recent order in storage, restore those orders and show it on this page
+//   // confirmation/dashboard which persists accross cart clear or page load
+//   // list of last orders
+
+//   const loadLastOrder = () => {
+//     try {
+//       const raw = localStorage.getItem("sw_last_order_v1");
+//       if (raw) return JSON.parse(raw);
+//     } catch (e) {
+//       return orders && orders.length > 0 ? orders[0] : null;
+//     }
+//   };
+
+//   const [orderDetails, setOrderDetails] = useState(loadLastOrder);
+//   const [success, setSuccess] = useState(() => !!loadLastOrder());
+//   const storageKey = "sw_shipping_v1";
+
+//   const initial = useMemo(() => {
+//     try {
+//       const raw = localStorage.getItem(storageKey);
+//       if (raw) return JSON.parse(raw);
+//     } catch (e) {}
+
+//     return {
+//       firstName: user?.firstName || user?.name || "",
+//       lastName: user?.lastName || user?.lastName || "",
+//       email: user?.email || "",
+//       company: "",
+//       address1: "",
+//       address2: "",
+//       city: "",
+//       country: "",
+//       state: "",
+//       zip: "",
+//       shippingMethod: "best",
+//       phone: "",
+//     };
+//   }, [user]);
+
+//   const [form, setForm] = useState(initial);
+
+//   useEffect(() => {
+//     try {
+//       localStorage.setItem(storageKey, JSON.stringify(form));
+//     } catch (error) {}
+//   }, [form]);
+
+//   return <div>CheckoutPage</div>;
+// };
+
+// export default CheckoutPage;
