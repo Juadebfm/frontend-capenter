@@ -11,6 +11,7 @@ import ProductDetailsPage from "./pages/ProductDetailsPage";
 import { CartProvider } from "./contexts/CartContext";
 import { Toastprovider } from "./contexts/ToastContext";
 import Cart from "./pages/Cart";
+import CheckoutPage from "./pages/CheckoutPage";
 
 const App = () => {
   return (
@@ -30,6 +31,7 @@ const App = () => {
                     element={<ProductDetailsPage />}
                   />
                   <Route path="/cart" element={<Cart />} />
+                  <Route path="/checkout" element={<CheckoutPage />} />
                 </Routes>
                 <Footer />
               </Router>
