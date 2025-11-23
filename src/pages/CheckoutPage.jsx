@@ -29,7 +29,7 @@ const SHIPPING_FORM_TEMPLATE = {
   phone: "",
 };
 
-// directly from cal;/fetch
+// directly from call/fetch
 const splitFullName = (fullName = "") => {
   if (!fullName?.trim()) return { first: "", last: "" };
 
@@ -133,7 +133,7 @@ export default function Checkout() {
   const storedLastOrder = useMemo(() => readLastOrderSnapshot(), []);
 
   // states
-  const [orders, setOrders] = useState();
+  const [orders, setOrders] = useState(() => storedOrders || []);
   const [orderDetails, setOrderDetails] = useState(storedLastOrder);
   const initialPhase =
     location.state?.view === "dashboard" && storedLastOrder
@@ -196,4 +196,334 @@ export default function Checkout() {
     userProfileDefaults.lastName,
     userProfileDefaults.email,
   ]);
+
+  // Celebration / end of page logic
+  useEffect(() => {
+    if (phase !== "celebration" || !orderDetails) {
+      if (countdownRef.current) {
+        clearInterval(countdownRef.current);
+        countdownRef.current = null;
+      }
+
+      if (redirectRef.current) {
+        clearTimeout(redirectRef.current);
+        countdownRef.current = null;
+      }
+      return;
+    }
+
+    setAutoRedirectSeconds(AUTO_DASHBOARD_DELAY / 1000);
+
+    countdownRef.current = window.setInterval(() => {
+      setAutoRedirectSeconds((prev) => {
+        if (prev <= 1) {
+          if (countdownRef.current) {
+            clearInterval(countdownRef.current);
+            countdownRef.current = null;
+          }
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    redirectRef.current = window.setTimeout(() => {
+      setPhase("dashboard");
+    }, AUTO_DASHBOARD_DELAY);
+
+    return () => {
+      if (countdownRef.current) {
+        clearInterval(countdownRef.current);
+        countdownRef.current = null;
+      }
+
+      if (redirectRef.current) {
+        clearTimeout(redirectRef.current);
+        redirectRef.current = null;
+      }
+    };
+  }, [phase, orderDetails]);
+
+  const updateField = (key, value) => {
+    setForm((prev) => ({ ...prev, [key]: value }));
+  };
+
+  const handleContinueToReview = () => {
+    const required = [
+      "firstName",
+      "lastName",
+      "email",
+      "address1",
+      "city",
+      "country",
+      "zip",
+    ];
+
+    const missing = required.filter((field) => !form[field]?.trim());
+
+    if (missing.length) {
+      setFormError("Please fill all required fields before progressing...");
+
+      return;
+    }
+
+    setFormError("");
+    if (items.length === 0) {
+      setFormError("Your cart is empty. Add items before progressing ...");
+
+      return;
+    }
+
+    setPhase("review");
+  };
+
+  const buildOrderSnapshot = () => {
+    const orderNumber = "ORD" + Date.now().toString().slice(-6);
+
+    const now = new Date();
+    return {
+      orderNumber,
+      date: now.toLocaleDateString(),
+      items: items.map((i) => ({ ...i })),
+      subtotal: getSubTotal(),
+      shipping: { ...form },
+      user: {
+        name:
+          user?.name ||
+          `${user?.firstName || ""} ${user?.lastName || ""}`.trim(),
+        email: user?.email || "",
+      },
+      status: "Pending",
+    };
+  };
+
+  const persistOrderSnapshot = (snapshot) => {
+    setOrders((prev) => {
+      const next = [snapshot, ...prev];
+      try {
+        localStorage.setItem(ORDERS_STORAGE_KEY, JSON.stringify(next));
+      } catch {
+        // nada
+      }
+      return next;
+    });
+
+    try {
+      localStorage.setItem(LAST_ORDER_KEY, JSON.stringify(snapshot));
+    } catch {
+      // nada
+    }
+  };
+
+  const finalizeOrder = () => {
+    const snapshot = buildOrderSnapshot();
+    setOrderDetails(snapshot);
+    persistOrderSnapshot(snapshot);
+    setTimeout(() => {
+      clearCart();
+    }, PLACE_ORDER_DELAY);
+    return snapshot;
+  };
+
+  const handlePlaceOrder = async () => {
+    if (!isAuthenticated) {
+      navigate("/account", { state: { redirect: "/checkout" } });
+      return;
+    }
+    if (items.length === 0) {
+      setPhase("shipping");
+      setFormError("Your cart is empty, add items before placing an order");
+
+      return;
+    }
+    setPhase("placing");
+    await new Promise((resolve) => setTimeout(resolve, PLACE_ORDER_DELAY));
+    finalizeOrder();
+    setAutoRedirectSeconds(AUTO_DASHBOARD_DELAY / 1000);
+    setPhase("celebration");
+  };
+
+  const handleApplyDiscount = (e) => {
+    e.preventDefault();
+    if (!discountCode.trim()) return;
+    setDiscountApplied(true);
+  };
+
+  const handleViewOrder = (order) => {
+    setOrderDetails(order);
+    setPhase("dashboard");
+    try {
+      localStorage.setItem(LAST_ORDER_KEY, JSON.stringify(order));
+    } catch {
+      // nada
+    }
+  };
+
+  const handleRemoveOrder = (order) => {
+    if (!orders?.length) return;
+
+    const next = orders.filter((o) => o.orderNumber !== order.orderNumber);
+
+    setOrders(next);
+    try {
+      localStorage.setItem(ORDERS_STORAGE_KEY, JSON.stringify(next));
+    } catch {
+      // nada
+    }
+
+    if (orderDetails?.orderNumber === order.orderNumber) {
+      const fallback = next[0] || null;
+      setOrderDetails(fallback);
+      if (fallback) {
+        try {
+          localStorage.setItem(LAST_ORDER_KEY, JSON.stringify(fallback));
+        } catch {
+          // nada
+        }
+        setPhase("dashboard");
+      } else {
+        try {
+          localStorage.removeItem(LAST_ORDER_KEY);
+        } catch {
+          // nada
+        }
+        setPhase("shipping");
+      }
+    }
+  };
+
+  const formatCityLine = (details) => {
+    const parts = [details.city, details.state].filter(Boolean).join(", ");
+
+    return `${parts}${details.zip ? `${details.zip}` : ""}`.trim();
+  };
+
+  const renderShippingDetails = (details) => {
+    if (!details) return null;
+
+    return (
+      <div className="space-y-2 text-gray-700 leading-relaxed">
+        <p className="underline text-base font-medium">
+          {[details.firstName, details.lastName].filter(Boolean).join(" ")}
+        </p>
+        {details.company ? (
+          <p className="underline text-base">{details.company}</p>
+        ) : null}
+        {details.address1 ? (
+          <p className="underline text-base">{details.address1}</p>
+        ) : null}
+        {details.address2 ? (
+          <p className="underline text-base">{details.address2}</p>
+        ) : null}
+        {details.city || details.state || details.zip ? (
+          <p className="underline text-base">{formatCityLine(details)}</p>
+        ) : null}
+        {details.country ? (
+          <p className="underline text-base">{details.country}</p>
+        ) : null}
+        {details.phone ? (
+          <p className="underline text-base">T: {details.phone}</p>
+        ) : null}
+      </div>
+    );
+  };
+
+  const OrderSummaryCard = () => {
+    return (
+      <div className="bg-swLightGray p-4 rounded">
+        <h3 className="font-semibold mb-2"></h3>
+      </div>
+    );
+  };
+
+  return (
+    <main className="max-w-5xl mx-auto px-4 py-10 space-y-6">
+      <header className="space-y-2">
+        <h1 className="text-2xl font-semibold text-gray-900">Checkout</h1>
+        <p className="text-gray-600">
+          Orders saved in your browser storage are shown below.
+        </p>
+      </header>
+
+      {orders?.length ? (
+        <div className="space-y-5">
+          {orders.map((order) => (
+            <section
+              key={order.orderNumber}
+              className="bg-white rounded-lg border border-gray-200 shadow-sm p-5 space-y-4"
+            >
+              <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+                <div>
+                  <p className="text-sm text-gray-500">Order</p>
+                  <p className="text-lg font-semibold text-gray-900">
+                    {order.orderNumber}
+                  </p>
+                </div>
+                <div className="text-left md:text-right">
+                  <p className="text-sm text-gray-500">Status</p>
+                  <p className="text-sm font-semibold text-swGreen">
+                    {order.status || "Pending"}
+                  </p>
+                </div>
+              </div>
+
+              <div className="grid gap-4 md:grid-cols-3 text-sm">
+                <div>
+                  <p className="text-gray-500">Placed</p>
+                  <p className="font-medium text-gray-900">
+                    {order.date || "—"}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-gray-500">Subtotal</p>
+                  <p className="font-medium text-gray-900">
+                    {order.subtotal !== undefined
+                      ? formatCurrency(order.subtotal)
+                      : "—"}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-gray-500">Items</p>
+                  <p className="font-medium text-gray-900">
+                    {order.items?.length || 0}
+                  </p>
+                </div>
+              </div>
+
+              <div>
+                <p className="text-sm text-gray-500 mb-2">Shipping</p>
+                {renderShippingDetails(order.shipping)}
+              </div>
+
+              <div>
+                <p className="text-sm text-gray-500 mb-2">Line Items</p>
+                <ul className="space-y-2">
+                  {order.items?.map((item, idx) => (
+                    <li
+                      key={`${item.sku || item.id || idx}-${idx}`}
+                      className="flex items-center justify-between text-sm text-gray-800"
+                    >
+                      <span>
+                        {item.name || item.title || item.sku || "Item"}{" "}
+                        <span className="text-gray-500">
+                          ×{item.quantity ?? item.qty ?? 1}
+                        </span>
+                      </span>
+                      {item.price ? (
+                        <span className="text-gray-700">
+                          {formatCurrency(item.price)}
+                        </span>
+                      ) : null}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </section>
+          ))}
+        </div>
+      ) : (
+        <div className="text-gray-600">No orders stored yet.</div>
+      )}
+    </main>
+  );
 }

@@ -210,7 +210,7 @@ const Navbar = () => {
             <LucideHeart className="h-4 w-4 cursor-pointer" />
             <LucideUser className="h-4 w-4 cursor-pointer" />
 
-            <div className="relative">
+            <Link to="/cart" className="relative inline-flex" aria-label="Cart">
               <span
                 className={`w-4 h-4 bg-smGreen text-white p-2 bg-red-500 rounded-full flex items-center justify-center text-xs absolute -right-1 -top-1 ${
                   bump ? "animate-bounce" : ""
@@ -219,7 +219,7 @@ const Navbar = () => {
                 {itemCount}
               </span>
               <ShoppingBasket className="w-6 h-6" />
-            </div>
+            </Link>
           </div>
         </section>
 
